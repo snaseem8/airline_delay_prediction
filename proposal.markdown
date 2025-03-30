@@ -24,7 +24,7 @@ The disruptions to airline operations discussed above arise from multiple factor
 
 Data cleaning will handle missing values by imputing weather conditions using historical data and removing extreme outliers in delay times. Feature engineering will extract key variables such as temperature deviations, precipitation intensity, wind speed, and visibility, which correlate with delays. Temporal features—like time of day, day of the week, and seasonality—will capture recurring delay patterns. To reduce redundancy from correlated weather variables, dimensionality reduction techniques like Principal Component Analysis (PCA) or feature selection will be applied.
 
-K-Means clustering will group airports based on historical weather patterns and delay frequencies, helping identify distinct regional weather-delay patterns. Linear Regression will serve as a baseline model, while Random Forest Regression, which handles feature interactions, nonlinearity, and missing data, will provide a more robust prediction of delay times.
+Linear Regression will serve as a baseline model and ridge Regression will explore the effects of regularization. The closed form solution, gradient descent, and stochastic gradient descent will all be explored for both methods. Polynomial features will also be used to capture nonlinearities.
 
 ## Potential Results + Discussion
 
