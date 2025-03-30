@@ -35,22 +35,18 @@
   - Use `predict` with the trained weights and test features (`xtest`) to generate predictions (`pred`).
   - Compute quantitative metrics on the test set:
     - **Root Mean Squared Error (RMSE)**: Use `rmse` to measure prediction error in minutes.
-    - **Mean Absolute Error (MAE)**: Average absolute difference between predicted and actual delays.
-    - **R² Score**: Proportion of variance explained by the model (ranges from 0 to 1, higher is better).
   - Compare training RMSE (from GD/SGD or closed-form) to test RMSE to check for overfitting.
 
 ## 4. Quantitative Results
 - **Objective**: Summarize model performance numerically.
 - **Steps**:
-  - Calculate RMSE, MAE, and R² for the test set predictions.
+  - Calculate RMSE for the test set predictions.
   - Optionally, compute these metrics for the training set to assess fit.
   - Record training time for each method (closed-form, GD, SGD) using Python’s `time` module.
   - Present results in a table format (e.g., using pandas DataFrame) with columns:
     - Method (Closed-Form, GD, SGD, Polynomial)
     - Training RMSE
     - Test RMSE
-    - Test MAE
-    - Test R²
     - Training Time (seconds)
 
 ## 5. Visual Results
@@ -78,7 +74,7 @@
   - Save quantitative results as a table (e.g., CSV or printed output).
   - Save visualizations as image files (e.g., PNG) using matplotlib’s `savefig`.
   - Interpret findings:
-    - How well does the model predict delays (based on RMSE, MAE, R²)?
+    - How well does the model predict delays (based on RMSE)?
     - Do GD and SGD converge to similar results as the closed-form solution?
     - Which features are most predictive of delays?
   - Suggest next steps (e.g., adding more features, trying polynomial terms).
@@ -96,6 +92,6 @@
 ## Example Workflow
 1. **Preprocess**: Load data, merge, clean, split into `xtrain`, `xtest`, `ytrain`, `ytest`.
 2. **Train**: Fit model with `linear_fit_closed` and `linear_fit_GD`.
-3. **Test**: Predict on `xtest`, compute RMSE, MAE, R².
+3. **Test**: Predict on `xtest`, compute RMSE.
 4. **Visualize**: Generate predicted vs. actual, residual, and loss plots.
 5. **Summarize**: Compile metrics into a table and save plots.
