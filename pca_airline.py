@@ -56,7 +56,6 @@ class AirlinePCA(PCA):
         df['ArrMinutes'] = df['ArrTime'].astype(str).str.zfill(4).str[:2].astype(int) * 60 + \
                         df['ArrTime'].astype(str).str.zfill(4).str[2:].astype(int)
 
-
         # Drop the original columns
         df = df.drop(columns=['DepTime','ArrTime'])
 
@@ -88,13 +87,13 @@ class AirlinePCA(PCA):
         return X_train, X_test, y_train, y_test
     
     
-    def check_plot(self, X_sample, y_sample):
+    def delay_viz(self, X_sample, y_sample):
         vmin = np.percentile(y_sample, 5)
         vmax = np.percentile(y_sample, 95)
         # Plot with color representing delay
         plt.figure(figsize=(10, 6))
         scatter = plt.scatter(
-            X_sample[:, 1], X_sample[:, 2],
+            X_sample[:, 1], X_sample[:, 2],     #! These features being visualized can be changed!
             c=y_sample,
             cmap='coolwarm',  # blue = early, red = late
             vmin=vmin, vmax=vmax,  # ← clip color range manually
@@ -113,6 +112,28 @@ class AirlinePCA(PCA):
         # plt.title('PCA Projection')
         # plt.show()
         
+    def airport_viz(self, X_sample, X_train, sample_indices):
+        origin_iah_values = X_train.iloc[sample_indices]['Origin_IAH'].values
+        # Convert Origin one-hot column to label
+        # X_train_sample = X_train.loc[sample_indices]
+        airport_labels = np.where(origin_iah_values == 1, 'IAH', 'HOU')
+
+        # Create a color map
+        color_map = {'IAH': 'blue', 'HOU': 'orange'}
+        colors = [color_map[label] for label in airport_labels]
+
+        plt.figure(figsize=(8,6))
+        plt.scatter(X_sample[:, 0], X_sample[:, 1], c=colors, alpha=0.5)
+
+        plt.xlabel("Principal Component 1")
+        plt.ylabel("Principal Component 2")
+        plt.title("PCA Projection Colored by Origin Airport")
+        plt.legend(handles=[
+            plt.Line2D([0], [0], marker='o', color='w', label='IAH', markerfacecolor='blue', markersize=8),
+            plt.Line2D([0], [0], marker='o', color='w', label='HOU', markerfacecolor='orange', markersize=8)
+        ])
+        plt.grid(True)
+        plt.show()
     
     def inspect_weights(self, pca, X_train, pc_count):
         for i in range(pc_count):
@@ -143,8 +164,11 @@ if "__main__" == __name__:
     # Fit training data to a model
     pca.fit(X_train_scaled)
     
-    X_train_pca = pca.transform(X_train_scaled, K=3)
-    X_test_pca = pca.transform(X_test_scaled, K=3)
+    #! This can be flipped to grabbing specifc number of principal components (K) if needed
+    # X_train_pca = pca.transform(X_train_scaled, K=3)
+    # X_test_pca = pca.transform(X_test_scaled, K=3)
+    X_train_pca = pca.transform_rv(X_train_scaled, retained_variance=0.90)
+    X_test_pca = pca.transform_rv(X_test_scaled, retained_variance=0.90)
     
     print(f"X train pca shape: {X_train_pca.shape}")
     print(f"X test pca shape: {X_test_pca.shape}")
@@ -155,7 +179,8 @@ if "__main__" == __name__:
     # Subset the data
     X_sample = X_train_pca[indices]
     y_sample = y_train_df.astype(float).to_numpy()[indices]
-    pca.check_plot(X_sample, y_sample)
+    pca.delay_viz(X_sample, y_sample)
+    pca.airport_viz(X_sample, X_train, indices)
     pca.visualize(X=X_sample, y=y_sample, fig_title="Airline PCA Projection")
     
     # See which original features are weighted the most in the principal components
