@@ -79,6 +79,20 @@ class LinearRegression(object):
                 feat[:, deg+1, :] = x ** (deg+1)
                 
         return feat
+    
+    def prepare_features(self, X, degree=None):
+        """Helper to prepare feature matrix with optional polynomial expansion."""
+        if degree is not None:
+            X_poly = self.construct_polynomial_feats(X, degree)
+            if X.ndim > 1: # 2D case
+                N = X.shape[0]
+                X_poly = X_poly.reshape(N, -1)
+                # Keep only one bias column
+                X_poly = np.hstack([X_poly[:, :1], X_poly[:, degree+1:]])
+                return X_poly
+        else:
+            # Add bias term manually if no polynomial
+            return np.hstack([np.ones((X.shape[0], 1)), X])
 
     def predict(self, xtest: np.ndarray, weight: np.ndarray) ->np.ndarray:
         """		

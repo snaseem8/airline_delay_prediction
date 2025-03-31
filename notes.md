@@ -95,3 +95,87 @@
 3. **Test**: Predict on `xtest`, compute RMSE.
 4. **Visualize**: Generate predicted vs. actual, residual, and loss plots.
 5. **Summarize**: Compile metrics into a table and save plots.
+
+
+## Folder Structure
+flight_delay_prediction/
+├── regression.py        # Your Regression class
+├── plotting.py         # Plotting functions
+├── main.ipynb          # Jupyter Notebook to run everything
+├── data/               # Folder for your datasets (e.g., flights.csv, weather.csv)
+├── results/            # Folder to save plots and quantitative results
+│   ├── predicted_vs_actual.png
+│   ├── residual_plot.png
+│   ├── loss_curve.png
+│   └── metrics.csv
+└── README.md           # Overview for GitHub Pages
+
+
+### Example helper function for preparing features
+import numpy as np
+
+class Regression:
+    # Your existing code here (rmse, construct_polynomial_feats, predict, etc.)
+
+def prepare_features(X, degree=None):
+    """Helper to prepare feature matrix with optional polynomial expansion."""
+    reg = Regression()
+    if degree is not None:
+        X_poly = reg.construct_polynomial_feats(X, degree)
+        if X.ndim > 1:  # 2D case
+            N = X.shape[0]
+            X_poly = X_poly.reshape(N, -1)
+            # Keep only one bias column
+            X_poly = np.hstack([X_poly[:, :1], X_poly[:, degree+1:]])
+        return X_poly
+    else:
+        # Add bias term manually if no polynomial
+        return np.hstack([np.ones((X.shape[0], 1)), X])
+
+## Main.ipynb structure
+### Setup
+import pandas as pd
+import numpy as np
+from regression import Regression, prepare_features
+from plotting import plot_predicted_vs_actual, plot_residuals, plot_loss_curve
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, r2_score
+
+### Load and preprocess data
+flights = pd.read_csv("data/flights.csv")
+weather = pd.read_csv("data/weather.csv")
+data = pd.merge(flights, weather, on=["date", "airport"])
+X = data[["wind_speed", "temperature", "precipitation"]].values
+y = data["delay_minutes"].values.reshape(-1, 1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train_poly = prepare_features(X_train, degree=2)
+X_test_poly = prepare_features(X_test, degree=2)
+
+## Randomly sample subset of data
+sample_percentage = 0.5  # 50%
+total_rows = X.shape[0]
+sample_size = int(total_rows * sample_percentage)  # Number of rows to sample
+
+indices = np.random.choice(total_rows, size=sample_size, replace=False)
+
+X_sampled = X[indices]
+y_sampled = y[indices]
+
+print(f"Original shape: X={X.shape}, y={y.shape}")
+print(f"Sampled shape: X={X_sampled.shape}, y={y_sampled.shape}")
+
+### Train Model
+reg = Regression()
+
+w_closed = reg.linear_fit_closed(X_train_poly, y_train)
+y_pred_closed = reg.predict(X_test_poly, w_closed)
+rmse_closed = reg.rmse(y_pred_closed, y_test)
+
+w_gd, loss_gd = reg.linear_fit_GD(X_train_poly, y_train, epochs=100, learning_rate=0.001)
+y_pred_gd = reg.predict(X_test_poly, w_gd)
+rmse_gd = reg.rmse(y_pred_gd, y_test)
+
+### Visualizations
+plot_predicted_vs_actual(y_test, y_pred_closed)
+plot_residuals(y_test, y_pred_closed)
+plot_loss_curve(loss_gd)
