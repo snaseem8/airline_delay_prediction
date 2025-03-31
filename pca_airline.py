@@ -88,18 +88,47 @@ class AirlinePCA(PCA):
         return X_train, X_test, y_train, y_test
     
     
-    def check_plot(self, X):
-        # X needs to be 2D
-        plt.scatter(X[:, 0], X[:, 1])
-        plt.title('PCA Projection')
+    def check_plot(self, X_sample, y_sample):
+        vmin = np.percentile(y_sample, 5)
+        vmax = np.percentile(y_sample, 95)
+        # Plot with color representing delay
+        plt.figure(figsize=(10, 6))
+        scatter = plt.scatter(
+            X_sample[:, 1], X_sample[:, 2],
+            c=y_sample,
+            cmap='coolwarm',  # blue = early, red = late
+            vmin=vmin, vmax=vmax,  # ← clip color range manually
+            s=15,
+            alpha=0.8
+        )
+
+        plt.colorbar(scatter, label='Arrival Delay (minutes)')
+        plt.xlabel('Principal Component 1')
+        plt.ylabel('Principal Component 2')
+        plt.title('PCA Projection Colored by Arrival Delay')
+        plt.grid(True)
+        plt.tight_layout()
         plt.show()
+        # plt.scatter(X[:, 0], X[:, 1])
+        # plt.title('PCA Projection')
+        # plt.show()
+        
+    
+    def inspect_weights(self, pca, X_train, pc_count):
+        for i in range(pc_count):
+            # Turn PC1 into a pandas Series for easier inspection
+            pc_weights = pd.Series(pca.V[i], index=X_train.columns)
+
+            # Sort by absolute contribution
+            pc_top_features = pc_weights.abs().sort_values(ascending=False)
+            print(f"Top features contributing to PC{i}:")
+            print(pc_top_features.head(10))  # top 10
 
 
 if "__main__" == __name__:
     pca = AirlinePCA()
     
     data_file_name = "hflights.csv"
-    output_file_name = "transformed_airline_data.csv"
     
     df = pca.read_data(csv_file_name=data_file_name)
     X_train, X_test, y_train_df, y_test_df = pca.clean_data(df)
@@ -123,20 +152,25 @@ if "__main__" == __name__:
     sample_size = 5000
     # Randomly choose indices
     indices = np.random.choice(X_train_pca.shape[0], size=sample_size, replace=False)
-    # Subset your data
+    # Subset the data
     X_sample = X_train_pca[indices]
     y_sample = y_train_df.astype(float).to_numpy()[indices]
-    pca.check_plot(X=X_sample)
+    pca.check_plot(X_sample, y_sample)
     pca.visualize(X=X_sample, y=y_sample, fig_title="Airline PCA Projection")
+    
+    # See which original features are weighted the most in the principal components
+    pca.inspect_weights(pca, X_train, pc_count=X_train_pca.shape[1])
     
     # Convert PCA results back to DataFrames for saving
     X_train_pca_df = pd.DataFrame(X_train_pca)
     X_test_pca_df = pd.DataFrame(X_test_pca)
 
     # Match shapes to avoid index issues when reloading
+    X_train.to_csv("X_train_cleaned.csv", index=False)
+    X_test.to_csv("X_test_cleaned.csv", index=False)
     X_train_pca_df.to_csv("X_train_pca.csv", index=False)
     X_test_pca_df.to_csv("X_test_pca.csv", index=False)
     y_train_df.to_csv("y_train.csv", index=False)
     y_test_df.to_csv("y_test.csv", index=False)
     
-    print(f"Data has been transformed and saved to a new CSV file named {output_file_name}!")
+    print(f"Data has been cleaned, transformed, and saved!")
