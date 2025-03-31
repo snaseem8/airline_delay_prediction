@@ -9,6 +9,41 @@ class PCA(object):
 		self.U = None
 		self.S = None
 		self.V = None
+  
+	def inspect_weights(self, pca, X_train, pc_count):
+		for i in range(pc_count):
+			# Turn PC1 into a pandas Series for easier inspection
+			pc_weights = pd.Series(pca.V[i], index=X_train.columns)
+
+			# Sort by absolute contribution
+			pc_top_features = pc_weights.abs().sort_values(ascending=False)
+			print(f"Top features contributing to PC{i}:")
+			print(pc_top_features.head(10))  # top 10
+   
+	def check_plot(self, X_sample, y_sample):
+		vmin = np.percentile(y_sample, 5)
+		vmax = np.percentile(y_sample, 95)
+		# Plot with color representing delay
+		plt.figure(figsize=(10, 6))
+		scatter = plt.scatter(
+			X_sample[:, 1], X_sample[:, 2],
+			c=y_sample,
+			cmap='coolwarm',  # blue = early, red = late
+			vmin=vmin, vmax=vmax,  # ← clip color range manually
+			s=15,
+			alpha=0.8
+		)
+
+		plt.colorbar(scatter, label='Arrival Delay (minutes)')
+		plt.xlabel('Principal Component 1')
+		plt.ylabel('Principal Component 2')
+		plt.title('PCA Projection Colored by Arrival Delay')
+		plt.grid(True)
+		plt.tight_layout()
+		plt.show()
+		# plt.scatter(X[:, 0], X[:, 1])
+		# plt.title('PCA Projection')
+		# plt.show()
 
 	def fit(self, X: np.ndarray) ->None:
 		"""		
