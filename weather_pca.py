@@ -34,10 +34,10 @@ class PCA(object):
 			alpha=0.8
 		)
 
-		plt.colorbar(scatter, label='Arrival Delay (minutes)')
+		plt.colorbar(scatter, label='Unix Timestamp (Y-M-D H:M:S)')
 		plt.xlabel('Principal Component 1')
 		plt.ylabel('Principal Component 2')
-		plt.title('PCA Projection Colored by Arrival Delay')
+		plt.title('PCA Projection Colored by Unix Timestamp')
 		plt.grid(True)
 		plt.tight_layout()
 		plt.show()
