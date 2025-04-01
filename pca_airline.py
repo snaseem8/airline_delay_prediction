@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from ml_cs7641.HW3.pca import PCA
+from pca import PCA
 
 import pandas as pd
 import numpy as np
