@@ -4,11 +4,11 @@
 ### linear_regression branch
 contains methods for regression and helper functions to plot data
 
-### chase-devel
+### chase-devel branch
 contains methods for airline data PCA and visualizations
 
-### sidney-devel
+### sidney-devel branch
 contains methods for weather PCA and visualizations
 
-### site
+### site branch
 contains markdown and setup files for the website
