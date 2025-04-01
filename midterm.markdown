@@ -30,7 +30,7 @@ The data preprocessing pipeline developed for this project begins with feature e
 
 Linear Regression will serve as a baseline model using data pre and post PCA. Linear regression will be used to output predicted arrival delay times, and both the closed form solution and gradient descent will be explored to see if overfitting is an issue. To avoid using the same data for training and testing, we will be splitting the data—70% for training and 30% for testing. We will tune the learning rates of the gradient descent model for performance as well as system capabilities.
 
-## Potential Results + Discussion
+## Results + Discussion
 
 By using PCA for initial preprocessing, we will be able to extract the most relevant features that contribute to arrival times. We will be using MSE and RMSE metrics to evaluate the capability of our linear regression models to predict flight arrival delays. An indication that our models performed well would be lower MSE and RMSE values.
 
