@@ -65,7 +65,9 @@ class AirlinePCA(PCA):
             if feature in df.columns:
                 df = pd.get_dummies(df, columns=[feature], drop_first=True)
 
-        #! Probably also need to delete examples/rows that have been cancelled
+        #* Remove cancelled flights
+        if 'Cancelled' in df.columns:
+            df = df[df['Cancelled'] != 1]
 
         #* Drop irrelevant or unhelpful columns
         drop_cols = ['Year', 'FlightNum', 'TailNum', 'Cancelled', 'CancellationCode', 'Diverted']
