@@ -191,8 +191,8 @@ if "__main__" == __name__:
     X_test_pca_df = pd.DataFrame(X_test_pca)
 
     # Match shapes to avoid index issues when reloading
-    # X_train.to_csv("X_train_cleaned.csv", index=False)    #! Uncomment these for just cleaned data w/ no PCA to save to csv
-    # X_test.to_csv("X_test_cleaned.csv", index=False)
+    X_train.to_csv("X_train_cleaned.csv", index=False)    #! Uncomment these for just cleaned data w/ no PCA to save to csv
+    X_test.to_csv("X_test_cleaned.csv", index=False)
     X_train_pca_df.to_csv("X_train_pca.csv", index=False)
     X_test_pca_df.to_csv("X_test_pca.csv", index=False)
     y_train_df.to_csv("y_train.csv", index=False)
