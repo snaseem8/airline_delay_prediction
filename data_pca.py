@@ -11,6 +11,8 @@ class DataPCA(PCA):
     
     def __init__(self):
         super().__init__()
+        self.weather_pca = PCA()
+        self.flight_pca = PCA()
         
     def read_data(self, csv_file_name):
         df = pd.read_csv(csv_file_name)
@@ -28,51 +30,63 @@ class DataPCA(PCA):
         # Replace "N" with 0 and "B" with 1 in the cancelled_code column
         df['cancelled_code'] = np.where(df['cancelled_code'] == 'N', 0, 1)
         
-        ###### FLIGHT Columns
-        flight_columns = ["flight_number", "scheduled_elapsed_time", "cancelled_code"]
-        flight_data = df[flight_columns]
-        flight_data_cleaned = flight_data.dropna()
-
-        ###### WEATHER Columns
-        weather_columns = [
-            "HourlyDryBulbTemperature_x", 
-            "HourlyPrecipitation_x", "HourlyStationPressure_x", "HourlyVisibility_x", 
-            "HourlyWindSpeed_x", "HourlyDryBulbTemperature_y", 
-            "HourlyPrecipitation_y", "HourlyStationPressure_y", 
-            "HourlyVisibility_y", "HourlyWindSpeed_y"
+       # Combine all features first
+        all_features = [
+            # Flight features
+            "flight_number", "scheduled_elapsed_time", "cancelled_code",
+            # Weather features
+            "HourlyDryBulbTemperature_x", "HourlyPrecipitation_x",
+            "HourlyStationPressure_x", "HourlyVisibility_x", "HourlyWindSpeed_x",
+            "HourlyDryBulbTemperature_y", "HourlyPrecipitation_y",
+            "HourlyStationPressure_y", "HourlyVisibility_y", "HourlyWindSpeed_y"
         ]
-        weather_data = df[weather_columns]
-        weather_data_cleaned = weather_data.dropna()
         
-        # For the arrival_delay, convert to numeric and handle non-numeric values
-        arrival_delay = pd.to_numeric(df['arrival_delay'], errors='coerce')
-        # Drop NaN values
-        arrival_delay = arrival_delay.dropna()
-        # Convert to numpy array for scaling
-        y = arrival_delay.values
-        
-        #* Split into train and test sets
-        ###### FLIGHT Columns 
-        X_flight_train, X_flight_test, y_train, y_test = train_test_split(
-            flight_data_cleaned, y, test_size=0.2, random_state=42
-        )
-        
-        ###### WEATHER Columns weather_
-        X_weather_train, X_weather_test, y_train, y_test = train_test_split(
-            weather_data_cleaned, y, test_size=0.2, random_state=42
-        )
-        
-        return X_weather_train, X_weather_test, X_flight_train, X_flight_test, y_train, y_test
-    
-    def inspect_weights(self, pca, X_train, pc_count, feat_count=5):
-        for i in range(pc_count):
-            # Turn PC1 into a pandas Series for easier inspection
-            pc_weights = pd.Series(pca.V[i], index=X_train.columns)
+        # Clean features and target together
+        X = df[all_features].dropna()
+        y = pd.to_numeric(df['arrival_delay'], errors='coerce').loc[X.index].dropna()
 
-            # Sort by absolute contribution
+        # Ensure aligned indices
+        X = X.loc[y.index]
+        
+        # Single split for all data
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+        
+        # Separate flight/weather features AFTER splitting
+        flight_cols = ["flight_number", "scheduled_elapsed_time", "cancelled_code"]
+        weather_cols = [col for col in all_features if col not in flight_cols]
+        
+        return (
+            X_train[weather_cols], X_test[weather_cols],
+            X_train[flight_cols], X_test[flight_cols],
+            y_train, y_test
+        )
+        
+    def fit_pca(self, data_type, X):
+        """Train PCA for specific data type"""
+        if data_type == "weather":
+            self.weather_pca.fit(X)
+        elif data_type == "flight":
+            self.flight_pca.fit(X)
+    
+    def transform_pca(self, data_type, X, retained_variance):
+        """Apply PCA transformation"""
+        if data_type == "weather":
+            return self.weather_pca.transform_rv(X, retained_variance)
+        elif data_type == "flight":
+            return self.flight_pca.transform_rv(X, retained_variance)
+    
+    def inspect_weights(self, data_type, X_train, pc_count):
+        """Analyze PCA component weights for specific data type"""
+        pca_instance = self.weather_pca if data_type == "weather" else self.flight_pca
+        for i in range(pc_count):
+            pc_weights = pd.Series(pca_instance.V[i], index=X_train.columns)
             pc_top_features = pc_weights.abs().sort_values(ascending=False)
-            print(f"Top features contributing to PC{i}:")
-            print(pc_top_features.head(feat_count))  # top 10
+            print(f"Top features contributing to {data_type} PC{i}:")
+            print(pc_top_features.head(10))
+
+
             
     def delay_viz(self, X_sample, y_sample):
         vmin = np.percentile(y_sample, 5)
@@ -122,16 +136,6 @@ class DataPCA(PCA):
         plt.grid(True)
         plt.show()
     
-    def inspect_weights(self, pca, X_train, pc_count):
-        for i in range(pc_count):
-            # Turn PC1 into a pandas Series for easier inspection
-            pc_weights = pd.Series(pca.V[i], index=X_train.columns)
-
-            # Sort by absolute contribution
-            pc_top_features = pc_weights.abs().sort_values(ascending=False)
-            print(f"Top features contributing to PC{i}:")
-            print(pc_top_features.head(10))  # top 10
-            
             
 if "__main__" == __name__:
     pca = DataPCA()
@@ -157,18 +161,18 @@ if "__main__" == __name__:
     pca.fit(X_weather_train_scaled)
     pca.fit(X_flight_train_scaled)
     
-    #! This can be flipped to grabbing specifc number of principal components (K) if needed
-    # X_train_pca = pca.transform(X_train_scaled, K=3)
-    # X_test_pca = pca.transform(X_test_scaled, K=3)
-    X_weather_train_pca = pca.transform_rv(X_weather_train_scaled, retained_variance=0.90)
-    X_weather_test_pca  = pca.transform_rv(X_weather_test_scaled, retained_variance=0.90)
-    X_flight_train_pca = pca.transform_rv(X_flight_train_scaled, retained_variance=0.90)
-    X_flight_test_pca  = pca.transform_rv(X_flight_test_scaled, retained_variance=0.90)
+    # Fit and transform weather data
+    pca.fit_pca("weather", X_weather_train_scaled)
+    X_weather_train_pca = pca.transform_pca("weather", X_weather_train_scaled, 0.90)
+
+    # Fit and transform flight data
+    pca.fit_pca("flight", X_flight_train_scaled)
+    X_flight_train_pca = pca.transform_pca("flight", X_flight_train_scaled, 0.90)
     
     print(f"X train weather pca shape: {X_weather_train_pca.shape}")
-    print(f"X test weather pca shape: {X_weather_test_pca.shape}")
+    # print(f"X test weather pca shape: {X_weather_test_pca.shape}")
     print(f"X train flight pca shape: {X_flight_train_pca.shape}")
-    print(f"X test flight pca shape: {X_flight_test_pca.shape}")
+    # print(f"X test flight pca shape: {X_flight_test_pca.shape}")
     
     sample_size = 5000
     # Randomly choose indices
@@ -184,33 +188,22 @@ if "__main__" == __name__:
     pca.delay_viz(X_weather_sample, y_sample)
     pca.delay_viz(X_flight_sample, y_sample)
     
-    # pca.airport_viz(X_sample, X_train, indices)
-    # pca.airport_viz(X_sample, X_train, indices)
-    
     pca.visualize(X=X_weather_sample, y=y_sample, fig_title="Weather PCA Projection")
     pca.visualize(X=X_flight_sample, y=y_sample, fig_title="Airline PCA Projection")
     
-    
-    # See which original features are weighted the most in the principal components
-    pca.inspect_weights(pca, X_weather_train, pc_count=X_weather_train_pca.shape[1])
-    pca.inspect_weights(pca, X_flight_train, pc_count=X_flight_train_pca.shape[1])
+    # Fixed version:
+    pca.inspect_weights("weather", X_weather_train, pc_count=X_weather_train_pca.shape[1])
+    pca.inspect_weights("flight", X_flight_train, pc_count=X_flight_train_pca.shape[1])
     
     # Convert PCA results back to DataFrames for saving
     X_weather_train_pca_df = pd.DataFrame(X_weather_train_pca)
-    X_weather_test_pca_df = pd.DataFrame(X_weather_test_pca)
+    # X_weather_test_pca_df = pd.DataFrame(X_weather_test_pca)
     X_flight_train_pca_df = pd.DataFrame(X_flight_train_pca)
-    X_flight_test_pca_df = pd.DataFrame(X_flight_test_pca)
-
-    # Match shapes to avoid index issues when reloading
-    # X_weather_train.to_csv("X_weather_train_cleaned.csv", index=False)    #! Uncomment these for just cleaned data w/ no PCA to save to csv
-    # X_weather_test.to_csv("X_weather_test_cleaned.csv", index=False)
-    # X_weather_train_pca_df.to_csv("X_weather_train_pca.csv", index=False)
-    # X_weather_test_pca_df.to_csv("X_weather_test_pca.csv", index=False)
+    # X_flight_test_pca_df = pd.DataFrame(X_flight_test_pca)
     
-    
-    # X_flight_train.to_csv("X_flight_train_cleaned.csv", index=False)    #! Uncomment these for just cleaned data w/ no PCA to save to csv
+    X_weather_train_pca_df.to_csv("X_weather_train_cleaned.csv", index=False)
     # X_flight_test.to_csv("X_flight_test_cleaned.csv", index=False)
-    # X_flight_train_pca_df.to_csv("X_flight_train_pca.csv", index=False)
+    X_flight_train_pca_df.to_csv("X_flight_train_pca.csv", index=False)
     # X_flight_test_pca_df.to_csv("X_flight_test_pca.csv", index=False)
     
     # y_train.to_csv("y_train.csv", index=False)
