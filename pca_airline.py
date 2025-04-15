@@ -188,7 +188,7 @@ if "__main__" == __name__:
     pca = AirlinePCA()
     
     # data_file_name = "hflights.csv"
-    data_file_name = "mixed_data/05-2019.csv"   #! Have to unzip the .zip file of the csv in the mixed_data folder
+    data_file_name = "05-2019.csv"   #! Have to get the file from the dataset here: https://www.kaggle.com/datasets/ioanagheorghiu/historical-flight-and-weather-data/data
     
     df = pca.read_data(csv_file_name=data_file_name)
     X_train, X_test, y_train_df, y_test_df = pca.clean_data(df, data_to_use=pca.data_to_use)  #! change this to use different portions of dataset in init()
