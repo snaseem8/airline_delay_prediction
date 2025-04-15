@@ -119,8 +119,8 @@ class PCA(object):
 		# dot_sizes = np.full(num_points, 20)
   
 		# X_new = self.transform(X, K=2)
-		x_plot = X[:, 0]
-		y_plot = X[:, 1]
+		x_plot = X[:, 1]
+		y_plot = X[:, 2]
 		vmin = np.percentile(y, 5)
 		vmax = np.percentile(y, 95)
 		scatter = plt.scatter(
@@ -144,7 +144,7 @@ class PCA(object):
 		z_plot = X[:, 2]
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='3d')
-		ax.scatter(x_plot, y_plot, z_plot, c=y, cmap='coolwarm', s=20)
+		ax.scatter(x_plot, y_plot, z_plot, c=y, cmap='coolwarm', vmin=vmin, vmax=vmax, s=20)
 		ax.set_xlabel('Feature 1')
 		ax.set_ylabel('Feature 2')
 		ax.set_zlabel('Feature 3')
@@ -152,13 +152,13 @@ class PCA(object):
 		plt.show()
   
 		# X_new = self.transform(X, K=2)
-		feature_idxs = np.random.choice(X.shape[1], size=2, replace=False)
-		x_plot = X[:, feature_idxs[0]]
-		y_plot = X[:, feature_idxs[1]]
-		plt.scatter(x_plot, y_plot, c=y, cmap='coolwarm', s=20)
-		plt.xlabel('Feature 1')
-		plt.ylabel('Feature 2')
-		plt.title(f"{fig_title} - Randomly Selected Features")
-		plt.show()
+		# feature_idxs = np.random.choice(X.shape[1], size=2, replace=False)
+		# x_plot = X[:, feature_idxs[0]]
+		# y_plot = X[:, feature_idxs[1]]
+		# plt.scatter(x_plot, y_plot, c=y, cmap='coolwarm', vmin=vmin, vmax=vmax, s=20)
+		# plt.xlabel('Feature 1')
+		# plt.ylabel('Feature 2')
+		# plt.title(f"{fig_title} - Randomly Selected Features")
+		# plt.show()
 
 
