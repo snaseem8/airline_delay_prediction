@@ -205,7 +205,8 @@ class RandomForest(object):
         plt.xticks(rotation=45, ha='right')
         plt.tight_layout()
         plt.show()
-        return
+
+        return avg_importances
 
     def hyperparameter_grid_search(
         self, n_estimators_range, max_depth_range, max_features_range
