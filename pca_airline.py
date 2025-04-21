@@ -13,7 +13,7 @@ class AirlinePCA(PCA):
     def __init__(self):
         super().__init__()
         self.sample_size = 120_000
-        self.data_to_use = "Both"
+        self.data_to_use = "Airline"    # put either Airline, Weather, or Both
         
         
     def read_data(self, csv_file_name):
@@ -150,8 +150,8 @@ class AirlinePCA(PCA):
     def delay_viz(self, X_sample, y_sample):
         vmin = np.percentile(y_sample, 5)
         vmax = np.percentile(y_sample, 95)
-        x_axis_pc = 6
-        y_axis_pc = 7
+        x_axis_pc = 0
+        y_axis_pc = 1
         # Plot with color representing delay
         plt.figure(figsize=(10, 6))
         scatter = plt.scatter(
@@ -191,14 +191,17 @@ if "__main__" == __name__:
     data_file_name = "05-2019.csv"   #! Have to get the file from the dataset here: https://www.kaggle.com/datasets/ioanagheorghiu/historical-flight-and-weather-data/data
     
     df = pca.read_data(csv_file_name=data_file_name)
-    X_train, X_test, y_train_df, y_test_df = pca.clean_data(df, data_to_use=pca.data_to_use)  #! change this to use different portions of dataset in init()
+    X_train, X_test, y_train, y_test = pca.clean_data(df, data_to_use=pca.data_to_use)  #! change this to use different portions of dataset in init()
         
-    X_train_np = X_train.astype(float).to_numpy()
-    X_test_np = X_test.astype(float).to_numpy()
+    # X_train_np = X_train.astype(float).to_numpy()
+    # X_test_np = X_test.astype(float).to_numpy()
 
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
+    scaler_x = StandardScaler()
+    X_train_scaled = scaler_x.fit_transform(X_train)
+    X_test_scaled = scaler_x.transform(X_test)
+    scaler_y = StandardScaler()
+    y_train_scaled = scaler_y.fit_transform(y_train.values.reshape(-1, 1))
+    y_test_scaled = scaler_y.transform(y_test.values.reshape(-1, 1))
     
     # Fit training data to a model
     pca.fit(X_train_scaled)
@@ -218,7 +221,8 @@ if "__main__" == __name__:
     indices = np.random.choice(X_train_pca.shape[0], size=sample_size, replace=False)
     # Subset the data
     X_sample = X_train_pca[indices]
-    y_sample = y_train_df.astype(float).to_numpy()[indices]
+    # y_sample = y_train_scaled.astype(float).to_numpy()[indices]
+    y_sample = y_train_scaled[indices]
     pca.delay_viz(X_sample, y_sample)
     # pca.visualize(X=X_sample, y=y_sample, fig_title="Airline PCA Projection")
     
@@ -233,7 +237,7 @@ if "__main__" == __name__:
     pc_count = min(X_train_pca.shape[0], 10)
     for i in range(pc_count):
         pc = X_train_pca[:, i]
-        corr = np.corrcoef(pc, y_train_df.astype(float).to_numpy())[0, 1]
+        corr = np.corrcoef(pc, y_train)[0, 1]
         
         if abs(corr) > abs(max_corr):
             max_corr = corr
@@ -247,13 +251,15 @@ if "__main__" == __name__:
     # Convert PCA results back to DataFrames for saving
     X_train_pca_df = pd.DataFrame(X_train_pca)
     X_test_pca_df = pd.DataFrame(X_test_pca)
+    y_train_df = pd.DataFrame(y_train_scaled)
+    y_test_df = pd.DataFrame(y_test_scaled)
 
     # Match shapes to avoid index issues when reloading
     # X_train.to_csv("X_train_cleaned.csv", index=False)    #! Uncomment these to save to csv
     # X_test.to_csv("X_test_cleaned.csv", index=False)
-    # X_train_pca_df.to_csv("X_train_pca.csv", index=False)
-    # X_test_pca_df.to_csv("X_test_pca.csv", index=False)
-    # y_train_df.to_csv("y_train.csv", index=False)
-    # y_test_df.to_csv("y_test.csv", index=False)
+    X_train_pca_df.to_csv("X_train_pca.csv", index=False)
+    X_test_pca_df.to_csv("X_test_pca.csv", index=False)
+    y_train_df.to_csv("y_train.csv", index=False)
+    y_test_df.to_csv("y_test.csv", index=False)
     
     print(f"Data has been cleaned, transformed, and saved!")
