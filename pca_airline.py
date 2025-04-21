@@ -122,6 +122,9 @@ class AirlinePCA(PCA):
         #* Remove rows with missing target
         df = df.dropna(subset=['departure_delay'])
         
+        #* Remove rows outside of 5 minutes and 3 hours delay
+        df = df[(df['departure_delay'] >= 5) & (df['departure_delay'] <= 180)]
+        
         #* Encode categorical variables using one-hot encoding
         categorical_features_to_encode = ['carrier_code', 'origin_airport', 'destination_airport']
         for feature in categorical_features_to_encode:
