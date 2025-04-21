@@ -18,16 +18,42 @@ X_test_tensor = torch.tensor(X_test_pca, dtype=torch.float32)
 y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
 y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
 
-# Define a simple feedforward neural network for regression
+# Simple feedforward neural network for regression
 class DelayPredictor(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
+        # self.model = nn.Sequential(
+        #     nn.Linear(input_dim, 128),
+        #     nn.LeakyReLU(negative_slope=0.01),
+        #     nn.Dropout(p=0.2, inplace=False),
+        #     nn.Linear(128, 128),
+        #     nn.LeakyReLU(negative_slope=0.01),
+        #     nn.Dropout(p=0.2, inplace=False),
+        #     nn.Linear(128, 64),
+        #     nn.LeakyReLU(negative_slope=0.01),
+        #     nn.Dropout(p=0.2, inplace=False),
+        #     nn.Linear(64, 32),
+        #     nn.LeakyReLU(negative_slope=0.01),
+        #     nn.Dropout(p=0.2, inplace=False),
+        #     nn.Linear(32, 1)
+        # )
         self.model = nn.Sequential(
-            nn.Linear(input_dim, 64),
+            nn.Linear(input_dim, 512),
             nn.ReLU(),
-            nn.Linear(64, 32),
+            nn.BatchNorm1d(512),
+            nn.Dropout(0.2),
+
+            nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(32, 1)
+            nn.BatchNorm1d(256),
+            nn.Dropout(0.2),
+
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.BatchNorm1d(128),
+            nn.Dropout(0.1),
+
+            nn.Linear(128, 1)  # Regression output
         )
 
     def forward(self, x):
@@ -37,10 +63,10 @@ class DelayPredictor(nn.Module):
 input_dim = X_train_tensor.shape[1]
 model = DelayPredictor(input_dim)
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=2e-3)
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Training loop
-epochs = 3000
+epochs = 300
 for epoch in range(epochs):
     model.train()
     optimizer.zero_grad()

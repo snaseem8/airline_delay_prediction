@@ -13,7 +13,7 @@ class AirlinePCA(PCA):
     def __init__(self):
         super().__init__()
         self.sample_size = 120_000
-        self.data_to_use = "Airline"    # put either Airline, Weather, or Both
+        self.data_to_use = "Both"    # put either Airline, Weather, or Both
         
         
     def read_data(self, csv_file_name):
@@ -223,30 +223,30 @@ if "__main__" == __name__:
     X_sample = X_train_pca[indices]
     # y_sample = y_train_scaled.astype(float).to_numpy()[indices]
     y_sample = y_train_scaled[indices]
-    pca.delay_viz(X_sample, y_sample)
+    # pca.delay_viz(X_sample, y_sample)
     # pca.visualize(X=X_sample, y=y_sample, fig_title="Airline PCA Projection")
     
     # See which original features are weighted the most in the principal components
-    pca.inspect_weights(pca, X_train, pc_count=X_train_pca.shape[1])
+    # pca.inspect_weights(pca, X_train, pc_count=X_train_pca.shape[1])
     
     # See what the correlation is of different principal components with departure_delay
     # Track the most correlated component
-    max_corr = 0
-    best_pc_index = -1
+    # max_corr = 0
+    # best_pc_index = -1
 
-    pc_count = min(X_train_pca.shape[0], 10)
-    for i in range(pc_count):
-        pc = X_train_pca[:, i]
-        corr = np.corrcoef(pc, y_train)[0, 1]
+    # pc_count = min(X_train_pca.shape[0], 10)
+    # for i in range(pc_count):
+    #     pc = X_train_pca[:, i]
+    #     corr = np.corrcoef(pc, y_train)[0, 1]
         
-        if abs(corr) > abs(max_corr):
-            max_corr = corr
-            best_pc_index = i
-        print(f"PC correlation: PC{i+1} = {corr:.4f}")
+    #     if abs(corr) > abs(max_corr):
+    #         max_corr = corr
+    #         best_pc_index = i
+    #     print(f"PC correlation: PC{i+1} = {corr:.4f}")
         
 
-    print(f"Most correlated PC: PC{best_pc_index+1}")
-    print(f"Correlation with departure delay: {max_corr:.4f}")
+    # print(f"Most correlated PC: PC{best_pc_index+1}")
+    # print(f"Correlation with departure delay: {max_corr:.4f}")
     
     # Convert PCA results back to DataFrames for saving
     X_train_pca_df = pd.DataFrame(X_train_pca)
@@ -257,8 +257,8 @@ if "__main__" == __name__:
     # Match shapes to avoid index issues when reloading
     # X_train.to_csv("X_train_cleaned.csv", index=False)    #! Uncomment these to save to csv
     # X_test.to_csv("X_test_cleaned.csv", index=False)
-    X_train_pca_df.to_csv("X_train_pca.csv", index=False)
-    X_test_pca_df.to_csv("X_test_pca.csv", index=False)
+    X_train_pca_df.to_csv(f"X_train_pca_{pca.data_to_use}.csv", index=False)
+    X_test_pca_df.to_csv(f"X_test_pca_{pca.data_to_use}.csv", index=False)
     y_train_df.to_csv("y_train.csv", index=False)
     y_test_df.to_csv("y_test.csv", index=False)
     
