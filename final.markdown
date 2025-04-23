@@ -80,10 +80,10 @@ Principal Component Analysis (PCA) was conducted using features from both airlin
 
 #### Supervised - Random Forest Feature Selection
 
+To gain an understanding of the impact of each feature on flight departure delays, random forest search was implemented. The importance values were averaged across all trees to avoid overfitting. Features such as temperature, pressure, and wind speed at both the origin and destination airports are, on average, more important in predicting departure delays. With this, there could be some potential in selecting only these features for regression models. However, these results are not intuitive, as visibility has been cited as a large contributor to flight delays [7].
+
 ![Supervised Feature Selection](./images/departure_delay_feat_selection.png)
 *Feature selection using weather data*
-
-To gain an understanding of the impact of each feature on flight departure delays, random forest search was implemented. The importance values were averaged across all trees to avoid overfitting. Features such as temperature, pressure, and wind speed at both the origin and destination airports are, on average, more important in predicting departure delays. With this, there could be some potential in selecting only these features for regression models. However, these results are not intuitive, as visibility has been cited as a large contributor to flight delays [7].
 
 #### Supervised - Linear Regression
 
