@@ -8,16 +8,16 @@ contains methods for regression and helper functions to plot data
 contains methods for airline data PCA and visualizations
 
 ### data_combination
-contains methods for weather PCA and visualizations
+contains methods for combining weather and airline datasets into one dataset
 
 ### feature_selection
-contains methods for weather PCA and visualizations
+contains methods for feature selection and visualizations
 
 ### linear_regression
-contains methods for linear regression
+contains methods for linear regression modeling
 
 ### ridge_regression
-contains methods for weather PCA and visualizations
+contains methods for ridge regression modeling
 
 ### sidney-devel branch
 contains methods for weather PCA and visualizations
