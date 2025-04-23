@@ -80,10 +80,8 @@ Principal Component Analysis (PCA) was conducted using features from both airlin
 
 #### Supervised - Random Forest Feature Selection
 
-*** PUT ALLENS PLOT HERE**
-
-![PCA scatter plot of both airline and weather data - variant](./images/PCA_top_variant_pcs_both.png)
-*Both PCA top 2 principal components with highest variance*
+![Supervised Feature Selection](./images/departure_delay_feat_selection.png)
+*Feature selection using weather data*
 
 To gain an understanding of the impact of each feature on flight departure delays, random forest search was implemented. The importance values were averaged across all trees to avoid overfitting. Features such as temperature, pressure, and wind speed at both the origin and destination airports are, on average, more important in predicting departure delays. With this, there could be some potential in selecting only these features for regression models. However, these results are not intuitive, as visibility has been cited as a large contributor to flight delays [7].
 
@@ -91,7 +89,7 @@ To gain an understanding of the impact of each feature on flight departure delay
 
 The scatter plots of predicted versus actual flight delays across four methods—closed-form and gradient descent (GD) on both cleaned and PCA-transformed airline data—reveal distinct performance patterns, with the red dashed line in each plot representing the ideal prediction scenario (y=x). The closed-form solution on cleaned data performs best, showing a tighter alignment with the ideal line, though it slightly overpredicts smaller delays and underpredicts larger ones, indicating a more effective capture of delay patterns. In contrast, both GD on cleaned data and the two PCA-based methods (closed-form and GD) exhibit significant underprediction, with predictions rarely exceeding 100-200 minutes despite actual delays reaching 800 minutes, as most points cluster below the ideal line. This consistent underprediction in PCA models suggests that dimensionality reduction may have discarded critical features, while GD’s poor performance on both datasets highlights potential convergence issues or an inability to model larger delays, underscoring the need for more robust methods or additional data like weather to improve predictions.
 
-![Supervised Feature Selection](./images/departure_delay_feat_selection.png)
+![Supervised Feature Selection](./images/Predicted_vs_Actual_Closed_Form_Cleaned_Data.png)
 *Closed-form solution on cleaned airline data: predicted vs. actual flight delays, demonstrating a tighter fit along the ideal line, though some overprediction occurs for smaller delays*
 
 To explore potential improvements, additional models were trained using PCA-transformed airline data, PCA-transformed weather data, and a combination of both. Despite these efforts, none outperformed the original closed-form solution on cleaned airline data. The best RMSE from the new methods—48.168 minutes using a closed-form model on combined weather and PCA-transformed airline data—was still significantly worse than the cleaned airline closed-form baseline (not shown in this table). Notably, all PCA-based models consistently hovered around similar RMSE values (~48–49 minutes), suggesting that dimensionality reduction may have limited their capacity to capture complex delay patterns. Even with the inclusion of weather data, performance gains were marginal, indicating that either more expressive modeling techniques or richer, non-linear models may be required to achieve substantial improvements.
