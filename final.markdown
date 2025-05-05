@@ -184,11 +184,11 @@ Lastly, working with large datasets highlighted the importance of streamlined, s
 
 ## Contribution Table
 
-| Name | Midterm Checkpoint Contribution |
+| Name | Final Checkpoint Contribution |
 |------|-----------------------|
 | Allen Gao | Supervised Visualizations, Results + Discussion Intro, & Supervised Feature Selection |
 | Chase Lolley | Data Cleaning, PCA w/ Airline Data, Handling Github Pages, Unsupervised Methods, Problem Definition, & Unsupervised Visualizations |
-| Shahameel Naseem | Linear Regression, Supervised Methods, Supervised Visualizations, Next Steps |
+| Shahmeel Naseem | Linear Regression, Supervised Methods, Supervised Visualizations, Next Steps |
 | Sidney Wise | PCA w/ Weather Data, Intro + Background, Literature Review, Dataset Description, Unsupervised Visualizations, & References |
 | Steven Haener | Ridge Regression, Analysis + Comparison, & Gantt Chart |
 
