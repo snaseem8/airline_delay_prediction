@@ -1,9 +1,3 @@
----
-layout: page
-title: "Final"
-permalink: /Final
----
-
 ## Intro + Background
 
 Flight delays and cancellations have become a critical issue in the aviation industry, causing significant economic losses and passenger inconvenience. In 2022 alone, flight disruptions generated an economic impact of $30-34 billion in the US [4]. For our project, we will be creating an delay prediction model that contains an end-to-end pipeline including data preprocessing/cleaning, feature engineering and feature selection from the flight and weather features, and then finally inputting the cleaned data into various regression models to see if we can get relatively accurate departure delay predictions. The combined feature regression model will be compared against models only using one of the datasets (either flight, weather, best flight feature, best weather features) to see which performs better.
